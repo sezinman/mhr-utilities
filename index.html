@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Monster Hunter Rise Utilities</title>
+	<style>
+		body {
+			background-color: #333;
+			text-align: center;
+			vertical-align: middle;
+			color: white;
+			font-size: 16px;
+			font-family: sans-serif;
+		}
+
+		body * {
+			color: white;
+			background-color: #333;
+			font-size: 16px;
+			font-family: sans-serif;
+		}
+
+		select,
+		button,
+		input {
+			border-radius: 4px;
+		}
+
+		button {
+			padding: 8px 15px;
+		}
+
+		select,
+		input {
+			padding: 5px 8px;
+		}
+
+		input[type="number"] {
+			width: 30px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<br />
+	<br />
+	<br />
+	<h1 style="font-size: 20px;">Talisman Rarity Checker</h1>
+	<br />
+	<label>Skill 1:</label>
+	<input type="text" id="skill-1" list="skill-list">
+	<datalist id="skill-list">
+		<option>Weakness Exploit</option>
+		<option>Attack Boost</option>
+		<option>Critical Eye</option>
+		<option>Handicraft</option>
+		<option>Critical Element</option>
+		<option>Critical Boost</option>
+		<option>Razor Sharp</option>
+		<option>Chain Crit</option>
+		<option>Foray</option>
+	</datalist>
+	<input type="number" id="skill-number-1" value="1" min="1" max="7">
+	<br />
+	<br />
+	<label>Skill 2:</label>
+	<input type="text" id="skill-2" list="skill-list">
+	<input type="number" id="skill-number-2" value="1" min="1" max="7">
+	<br />
+	<br />
+	<label>Lv1 Slots:</label>
+	<input type="number" id="slots-1" value="0" min="0" max="3">
+	<label>Lv2 Slots:</label>
+	<input type="number" id="slots-2" value="0" min="0" max="3">
+	<label>Lv3 Slots:</label>
+	<input type="number" id="slots-3" value="0" min="0" max="3">
+	<label>Lv4 Slots:</label>
+	<input type="number" id="slots-4" value="0" min="0" max="3">
+	<br />
+	<br />
+	<button onclick="checkOdds()">Calculate</button>
+	<br />
+	<br />
+	<div>Odds: <span id="odds">100</span>%</div>
+	<br />
+	<br />
+	<br />
+	<div>
+		Make sure your skill names are spelled correctly and are case sensitive.
+	</div>
+
+	</datalist>
+
+	<script type="text/javascript">
+
+		window.onerror = function (errorMsg, url, lineNumber) {
+			alert('Error: ' + errorMsg + ' Script: ' + url + ' Line: ' + lineNumber);
+		}
+
+		var data;
+		var percentValid;
+
+		window.onload = async () => {
+			try {
+				const target = `anima.csv`;
+
+				const res = await fetch(target, {
+					method: 'get',
+					headers: {
+						'content-type': 'text/csv;charset=UTF-8',
+					}
+				});
+
+				if (res.status === 200) {
+					data = await res.text();
+					data = data.split("\n");
+					percentValid = data.filter(el =>
+						el.split(",")[4] === "4-1-1" ||
+						el.split(",")[4] === "4-0-1" ||
+						el.split(",")[4] === "4-1-0" ||
+						el.split(",")[4] === "4-2-0" ||
+						el.split(",")[4] === "4-2-1"
+					).reduce((prev, cur) =>
+						prev - fractionStrToDecimal(cur.split(",")[5]), 1
+					);
+				} else {
+					console.log(`Error code ${res.status}`);
+				}
+			} catch (err) {
+				console.log(err)
+			}
+		}
+
+		function checkOdds() {
+			const skill1 = document.getElementById("skill-1").value;
+			const skill2 = document.getElementById("skill-2").value;
+
+			const skillNumber1 = (+document.getElementById("skill-number-1").value);
+			const skillNumber2 = (+document.getElementById("skill-number-2").value);
+
+			const slots1 = (+document.getElementById("slots-1").value);
+			const slots2 = (+document.getElementById("slots-2").value);
+			const slots3 = (+document.getElementById("slots-3").value);
+			const slots4 = (+document.getElementById("slots-4").value);
+
+			if (skill1 === "") {
+				alert("Must have at least one skill.");
+				return;
+			}
+
+			document.getElementById("odds").textContent = data.filter(el =>
+				el.includes(skill1 + ',') &&
+				el[el.indexOf(skill1 + ',') + skill1.length + 1] >= skillNumber1 &&
+				el.includes(skill2 + ',') &&
+				(el[el.indexOf(skill2 + ',') + skill2.length + 1] >= skillNumber2 || skill2 === "") && // monitor this
+				(slots4 < 1 || slots3 + slots2 + slots1 < 1) &&
+				[...el.split(",")[4].matchAll(/4/g)].length >= slots4 &&
+				[...el.split(",")[4].matchAll(/[3-4]/g)].length >= slots3 + slots4 &&
+				[...el.split(",")[4].matchAll(/[2-4]/g)].length >= slots2 + slots3 + slots4 &&
+				[...el.split(",")[4].matchAll(/[1-4]/g)].length >= slots1 + slots2 + slots3 + slots4
+			).reduce((prev, cur) => prev + fractionStrToDecimal(cur.split(",")[5]), 0) * 100 / percentValid;
+		}
+
+		function fractionStrToDecimal(str) {
+			return str.split('/').reduce((p, c) => p / c);
+		}
+
+	</script>
+</body>
+
+</html>
