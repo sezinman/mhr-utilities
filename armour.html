@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Monster Hunter Rise Utilities</title>
+	<style>
+		body {
+			background-color: #333;
+			text-align: center;
+			vertical-align: middle;
+			color: white;
+			font-size: 16px;
+			font-family: sans-serif;
+		}
+
+		body * {
+			color: white;
+			background-color: #333;
+			font-size: 16px;
+			font-family: sans-serif;
+		}
+
+		select,
+		button,
+		input {
+			border-radius: 4px;
+		}
+
+		button {
+			padding: 8px 15px;
+		}
+
+		select,
+		input {
+			padding: 5px 8px;
+		}
+
+		input[type="number"] {
+			width: 30px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<br />
+	<br />
+	<br />
+	<h1 style="font-size: 20px;">Armor Augment Rarity Checker</h1>
+	<br />
+
+	<br />
+	<br />
+	<button onclick="checkOdds()">Calculate</button>
+	<br />
+	<br />
+	<div>Odds: <span id="odds">100</span>%</div>
+	<br />
+	<br />
+	<br />
+	<div>
+		Make sure your skill names are spelled correctly and are case sensitive.
+	</div>
+
+	</datalist>
+
+	<script type="text/javascript">
+
+		window.onerror = function (errorMsg, url, lineNumber) {
+			alert('Error: ' + errorMsg + ' Script: ' + url + ' Line: ' + lineNumber);
+		}
+
+		const pool6 = [ // THIS IS POOL 6
+			{ name: "Defense", value: 1, cost: 1, chance: 0.08 },
+			{ name: "Defense", value: 2, cost: 3, chance: 0.024 },
+			{ name: "Defense", value: 3, cost: 3, chance: 0.04 },
+			{ name: "Defense", value: 4, cost: 3, chance: 0.016 },
+			{ name: "Defense", value: 4, cost: 5, chance: 0.024 },
+			{ name: "Defense", value: 5, cost: 5, chance: 0.04 },
+			{ name: "Defense", value: 6, cost: 5, chance: 0.016 },
+			{ name: "Defense", value: 6, cost: 7, chance: 0.012 },
+			{ name: "Defense", value: 7, cost: 7, chance: 0.02 },
+			{ name: "Defense", value: 8, cost: 7, chance: 0.008 },
+			{ name: "Defense", value: 8, cost: 10, chance: 0.012 },
+			{ name: "Defense", value: 10, cost: 10, chance: 0.02 },
+			{ name: "Defense", value: 12, cost: 10, chance: 0.008 },
+			{ name: "Defense", value: -6, cost: -3, chance: 0.04 },
+			{ name: "Defense", value: -12, cost: -5, chance: 0.04 },
+			{ name: "Fire Res", value: 1, cost: 2, chance: 0.006 },
+			{ name: "Fire Res", value: 2, cost: 2, chance: 0.024 },
+			{ name: "Fire Res", value: -1, cost: -2, chance: 0.004 },
+			{ name: "Fire Res", value: -2, cost: -2, chance: 0.014 },
+			{ name: "Fire Res", value: -3, cost: -3, chance: 0.012 },
+			{ name: "Water Res", value: 1, cost: 2, chance: 0.006 },
+			{ name: "Water Res", value: 2, cost: 2, chance: 0.024 },
+			{ name: "Water Res", value: -1, cost: -2, chance: 0.004 },
+			{ name: "Water Res", value: -2, cost: -2, chance: 0.014 },
+			{ name: "Water Res", value: -3, cost: -3, chance: 0.012 },
+			{ name: "Thunder Res", value: 1, cost: 2, chance: 0.006 },
+			{ name: "Thunder Res", value: 2, cost: 2, chance: 0.024 },
+			{ name: "Thunder Res", value: -1, cost: -2, chance: 0.004 },
+			{ name: "Thunder Res", value: -2, cost: -2, chance: 0.014 },
+			{ name: "Thunder Res", value: -3, cost: -3, chance: 0.012 },
+			{ name: "Ice Res", value: 1, cost: 2, chance: 0.006 },
+			{ name: "Ice Res", value: 2, cost: 2, chance: 0.024 },
+			{ name: "Ice Res", value: -1, cost: -2, chance: 0.004 },
+			{ name: "Ice Res", value: -2, cost: -2, chance: 0.014 },
+			{ name: "Ice Res", value: -3, cost: -3, chance: 0.012 },
+			{ name: "Dragon Res", value: 1, cost: 2, chance: 0.006 },
+			{ name: "Dragon Res", value: 2, cost: 2, chance: 0.024 },
+			{ name: "Dragon Res", value: -1, cost: -2, chance: 0.004 },
+			{ name: "Dragon Res", value: -2, cost: -2, chance: 0.014 },
+			{ name: "Dragon Res", value: -3, cost: -3, chance: 0.012 },
+			{ name: "Skill", value: 0, cost: 3, chance: 0.06 },
+			{ name: "Skill", value: 1, cost: 6, chance: 0.04 },
+			{ name: "Skill", value: 2, cost: 9, chance: 0.036 },
+			{ name: "Skill", value: 3, cost: 12, chance: 0.028 },
+			{ name: "Skill", value: 4, cost: 15, chance: 0.016 },
+			{ name: "Skill", cost: -10, chance: 0.02 },
+			{ name: "Slot", value: 1, cost: 6, chance: 0.07 },
+			{ name: "Slot", value: 2, cost: 12, chance: 0.025 },
+			{ name: "Slot", value: 3, cost: 18, chance: 0.005 },
+		];
+
+		function checkOdds() {
+			const desired = [
+				[
+					
+				],
+				[
+
+				],
+				[
+
+				],
+				[
+					{ name: "Chain Crit", required: 2 }
+				],
+				[
+					{ name: "Weakness Exploit", required: 1 },
+					{ name: "Attack Boost", required: 1 }
+				]
+			];
+
+			const slots = 5; // this can be a hard number since I just need to calculate the number needed
+		}
+
+		function firstRoll(rollNumber, budget, defence, slots, desired) {
+			const rows = pool6;
+
+			let retval = 0;
+			let percentValid = 0;
+
+			for (var i = 0; i < rows.length; i++) {
+				const row = rows[i];
+
+				if (row.name !== "Defense") continue;
+				if (row.cost > budget) continue;
+
+				retval += row.chance * secondRoll(rollNumber + 1, budget - row.cost, defence + row.value, slots, desired);
+				percentValid += row.chance;
+
+			}
+
+			// don't think I need percent valid as a divisor
+			// maybe I do, percentvalid is all the defenses
+
+			retval += (1 - percentValid) * secondRoll(rollNumber, budget, defence, slots, desired);
+
+			return retval;
+		}
+
+		function secondRoll(rollNumber, budget, defence, slots, desired) {
+			const rows = pool6;
+
+			let retval = 0;
+			let percentValid = 0;
+
+			for (var i = 0; i < rows.length; i++) {
+				const row = rows[i];
+
+				if (row.name !== "Skill") continue;
+				if (row.cost > budget) continue;
+
+				retval += row.chance * getRoll(rollNumber + 1, budget - row.cost, defence, slots, true, desired); // need to modify desired
+				percentValid += row.chance;
+			}
+
+			retval += (1 - percentValid) * getRoll(rollNumber, budget, defence, slots, true, desired);
+		}
+
+		function lastRoll(budget, defence, slots, desired) {
+			const rows = pool6;
+
+			let highestCostRow = 0;
+
+			for (var i = 0; i < rows.length; i++) {
+				const row = rows[i];
+
+				if (row.name !== "Defense") break; // maybe return???
+				if (row.cost > budget || row.cost < 0) continue; // could technically return here
+				// how does this interact when several rows have same def? go with highest cost???
+
+				highestCostRow = row;
+			}
+
+			if (highestCostRow.value + defence !== 0) {
+				return isGoodRoll(slots, desired);
+			}
+
+			return getRoll(6, budget, defence, slots, false, desired);
+		}
+
+
+		function getRoll(rollNumber, budget, defence, slots, canBeDefence, desired) { // recursion
+
+			if (budget === 0 || rollNumber === 7) {
+				return isGoodRoll(slots, desired);
+			}
+
+			const rows = pool6; // this is temp
+
+			let retval = 0;
+			let percentValid = 0;
+
+			for (var i = 0; i < rows.length; i++) {
+
+				const row = rows[i];
+
+				if (!canBeDefence && row.name === "Defense") continue;
+				if (row.cost > budget) continue;
+
+				percentValid += row.chance;
+
+				switch (row.name) {
+					case "Defense":
+						if (row.value + defence === 0) {
+							retval += row.chance * getRoll(rollNumber, budget, defence, slots, false, desired);
+						} else {
+							retval += row.chance * getRoll(rollNumber + 1, budget - row.cost, defence + row.value, slots, true, desired);
+						}
+						break;
+					case "Skill":
+						if (desired[row.value].length > 0) {
+							for (var j = 0; j < desired[row.value].length; j++) {
+								const temp = copy(desired);
+								temp[row.value][j].required--;
+								retval += row.chance * getRoll(rollNumber + 1, budget - row.cost, defence, slots, true, temp);
+							}
+						} else if (row.cost < 0) {
+							// handle accidentally taking good skill
+							const temp = copy(desired);
+							//retval += row.chance * getRoll(rollNumber + 1, budget - row.cost, defence, slots, true, desired);
+						} else {
+							retval += row.chance * getRoll(rollNumber + 1, budget - row.cost, defence, slots, true, desired);
+						}
+						break;
+					case "Slot":
+						retval += row.chance * getRoll(rollNumber + 1, budget - row.cost, defence, slots - row.value, true, desired);
+						break;
+					default:
+						retval += row.chance * getRoll(rollNumber + 1, budget - row.cost, defence, slots, true, desired);
+				}
+
+				// BEFORE I GO ANY FURTHER, NEED TO FIGURE OUT SKILL DATA STRUCTURE
+
+				if (row.name === "Defense") {
+					if (row.value + defence === 0) {
+						retval += row.chance * getRoll(rollNumber, budget, defence, slots, false, desired);
+					}
+					else {
+						retval += row.chance * getRoll(rollNumber + 1, budget - row.cost, defence + row.value, slots, true, desired);
+					}
+				}
+				else if (row.name === "Skill" && desired.skills[row.cost] > 0) { // monitor access, not sure about data structure
+					const temp = desired; // may need to deep copy
+					temp.skills[row.cost]--;
+					retval += row.chance * getRoll(rollNumber + 1, budget - row.cost, defence, slots, true, temp);
+				}
+				else if (row.name === "Slot" && desired.slots[row.value] > 0) { // same as above
+					const temp = desired;
+					temp.slots[row.value]--;
+					retval += row.chance * getRoll(rollNumber + 1, budget - row.cost, defence, slots, true, temp);
+				}
+				else if (row.name === "Slot" && row.cost < 0) {
+					// not sure what to do here
+					var temp = oddsOfUnneededSkill = 0.5; //THIS IS TEMP, NEED PERM SOLUTION
+					retval += row.chance * oddsOfUnneededSkill * getRoll(rollNumber + 1, budget - row.cost, defence, slots, true, desired);
+					// might need an else for if it takes an important skill since technically it's recoverable, though not likely
+					// maybe a locked skill thing? and armor selector?
+				}
+				else {
+					retval += row.chance * getRoll(rollNumber + 1, budget - row.cost, defence, slots, true, desired);
+				}
+
+			}
+
+			retval /= percentValid;
+
+			return retval;
+		}
+
+		function isGoodRoll(slots, desired) {
+			if (desired.skills.reduce((prev, cur) => prev + Math.abs(cur)) > 0) return 0;
+			if (slots > 0) return 0;
+			return 1;
+		}
+
+		function copy(obj) {
+			return JSON.parse(JSON.stringify(obj));
+		}
+
+
+		// OKAY, FROM NOW ON, WE'RE IGNORING THE 50 RULE BECAUSE IT'S NEGLIGIBLE
+		// 99.938% chance that 50 rolls doesn't get hit at worst, not bothering
+		// that means only consider possible outcomes
+
+		// need to handle last roll functionality
+
+	</script>
+</body>
+
+</html>
